@@ -1,70 +1,181 @@
-# Getting Started with Create React App
+## Ex05 Image Carousel
+## Date:
+## AIM
+To create a Image Carousel using React
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## ALGORITHM
+# STEP 1 Initial Setup:
+Input: A list of images to display in the carousel.
 
-## Available Scripts
+Output: A component displaying the images with navigation controls (e.g., next/previous buttons).
 
-In the project directory, you can run:
+# Step 2 State Management:
+Use a state variable (currentIndex) to track the index of the current image displayed.
 
-### `npm start`
+The carousel starts with the first image, so initialize currentIndex to 0.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# Step 3 Navigation Controls:
+Next Image: When the "Next" button is clicked, increment currentIndex.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+If currentIndex is at the end of the image list (last image), loop back to the first image using modulo: currentIndex = (currentIndex + 1) % images.length;
 
-### `npm test`
+Previous Image: When the "Previous" button is clicked, decrement currentIndex.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+If currentIndex is at the beginning (first image), loop back to the last image: currentIndex = (currentIndex - 1 + images.length) % images.length;
 
-### `npm run build`
+# Step 4 Displaying the Image:
+The currentIndex determines which image is displayed.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Using the currentIndex, display the corresponding image from the images list.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# Step 5 Auto-Rotation:
+Set an interval to automatically change the image after a set amount of time (e.g., 3 seconds).
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Use setInterval to call the nextImage() function at regular intervals.
 
-### `npm run eject`
+Clean up the interval when the component unmounts using clearInterval to prevent memory leaks.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## PROGRAM
+app.js
+```
+import React, { useState, useEffect } from "react";
+import "./App.css";
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+function App() {
+  const images = [
+    "https://picsum.photos/id/1015/800/500",
+    "https://picsum.photos/id/1016/800/500",
+    "https://picsum.photos/id/1018/800/500",
+    "https://picsum.photos/id/1025/800/500"
+  ];
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+  const nextImage = () => {
+    setCurrentIndex((currentIndex + 1) % images.length);
+  };
 
-## Learn More
+  const previousImage = () => {
+    setCurrentIndex(
+      (currentIndex - 1 + images.length) % images.length
+    );
+  };
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex(
+        (currentIndex) => (currentIndex + 1) % images.length
+      );
+    }, 3000);
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+    return () => clearInterval(interval);
+  }, [images.length]);
 
-### Code Splitting
+  return (
+    <div className="carousel-container">
+      <h1>Image Carousel</h1>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+      <div className="carousel">
+        <img
+          src={images[currentIndex]}
+          alt={`Slide ${currentIndex + 1}`}
+        />
 
-### Analyzing the Bundle Size
+        <button className="prev" onClick={previousImage}>
+          ❮
+        </button>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+        <button className="next" onClick={nextImage}>
+          ❯
+        </button>
+      </div>
 
-### Making a Progressive Web App
+      <p>
+        Image {currentIndex + 1} of {images.length}
+      </p>
+    </div>
+  );
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+export default App;
+```
+app.css
+```
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-### Advanced Configuration
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+.carousel-container {
+  text-align: center;
+  padding: 40px;
+}
 
-### Deployment
+.carousel-container h1 {
+  margin-bottom: 25px;
+  color: #333;
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+.carousel {
+  position: relative;
+  width: 800px;
+  max-width: 90%;
+  margin: auto;
+  overflow: hidden;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
 
-### `npm run build` fails to minify
+.carousel img {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  display: block;
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 30px;
+  padding: 10px 18px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+button:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.prev {
+  left: 15px;
+}
+
+.next {
+  right: 15px;
+}
+
+.carousel-container p {
+  margin-top: 15px;
+  font-size: 18px;
+  color: #555;
+}
+```
+
+## OUTPUT
+![alt text](<Screenshot (170).png>)
+![alt text](<Screenshot (171).png>)
+![alt text](<Screenshot (172).png>)
+![alt text](<Screenshot (173).png>)
+
+## RESULT
+The program for creating Image Carousel using React is executed successfully.
